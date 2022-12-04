@@ -1,7 +1,6 @@
-﻿Console.WriteLine("Hello, World!");
-var elfsCalories = new List<int>();
+﻿var elfsCalories = new List<int>();
 
-var fileLines = File.ReadAllLines(@"C:\Users\beulu\source\repos\AdventOfCode\day1RealInput.txt");
+var fileLines = FileReader.FileReader.FileToArray(@"C:\Users\beulu\source\repos\AdventOfCode\day1RealInput.txt");
 var count = 0;
 var calories = 0;
 elfsCalories.Add(0);
@@ -21,7 +20,6 @@ foreach (var line in fileLines)
     }
     elfsCalories[count] += calories;
 }
-
 
 Console.WriteLine($"Max calories has elf with {elfsCalories.OrderByDescending(x => x).Take(3).Sum()} calories");
 Console.ReadLine();
