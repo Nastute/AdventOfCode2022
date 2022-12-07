@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 var assignments = FileReader.FileReader.FileToArray(@"..\..\..\day5Example.txt").ToList();
 
