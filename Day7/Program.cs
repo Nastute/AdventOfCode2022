@@ -1,0 +1,1 @@
+﻿var fileSystem = FileReader.FileReader.FileToArray(@"..\..\..\day7Example.txt").ToList();
