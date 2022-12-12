@@ -1,4 +1,6 @@
-﻿var fileLines = FileReader.FileReader.FileToArray(@"..\..\..\day11RealInput.txt").ToList();
+﻿using static Program;
+
+var fileLines = FileReader.FileReader.FileToArray(@"..\..\..\day11RealInput.txt").ToList();
 
 var monkeys = new List<Monkey>();
 while (fileLines.Any())
@@ -16,44 +18,72 @@ while (fileLines.Any())
 
 for (int i = 0; i < 20; i++)
 {
-    SimulateRound(monkeys);
+    SimulateRound(monkeys,1);
 }
 
 var temp = monkeys.OrderByDescending(x => x.inspectedCount).ToList();
-Console.WriteLine(temp[0].inspectedCount * temp[1].inspectedCount);
+long result = (long)temp[0].inspectedCount * (long)temp[1].inspectedCount;
+Console.WriteLine(result);
+
+for (int i = 1; i < 10001; i++)
+{
+    SimulateRound(monkeys,2);
+}
+
+Console.WriteLine($"ROUND ");
+Console.WriteLine($"Monkey 0 inspected items {monkeys[0].inspectedCount} times.");
+Console.WriteLine($"Monkey 1 inspected items {monkeys[1].inspectedCount} times.");
+Console.WriteLine($"Monkey 2 inspected items {monkeys[2].inspectedCount} times.");
+Console.WriteLine($"Monkey 3 inspected items {monkeys[3].inspectedCount} times.");
+
+temp = monkeys.OrderByDescending(x => x.inspectedCount).ToList();
+result = (long)temp[0].inspectedCount * (long)temp[1].inspectedCount;
+Console.WriteLine(result);
 Console.ReadLine();
 
 public static partial class Program
 {
 
-    public static void SimulateRound(List<Monkey> monkeys)
+    public static void SimulateRound(List<Monkey> monkeys, int part)
     {
+        var factor = monkeys.Aggregate(1L, (f, m) => f * m.test);
+        var count = 0;
         foreach (var monkey in monkeys)
         {
-            var starItemsCount = monkey.items.Count();
+            var startNum = monkey.items.Count();
             foreach (var item in monkey.items)
             {
                 monkey.inspectedCount++;
 
-                var worry = GetWorry(item, monkey.operation, monkey.operationOperand);
-                var temp = Math.Round(Convert.ToDecimal(worry) / 3, MidpointRounding.ToZero);
-
-                if (temp % monkey.test == 0)
+                long worry = GetWorry(item, monkey.operation, monkey.operationOperand);
+                long temp;
+                if (part == 1)
                 {
-                    monkeys[monkey.ifTestTrue].items.Add(Convert.ToInt32(temp));
+                    temp = (long)Math.Round(Convert.ToDecimal(worry) / 3, MidpointRounding.ToZero);
                 }
                 else
                 {
-                    monkeys[monkey.ifTestFalse].items.Add(Convert.ToInt32(temp));
+                    temp = worry % factor;
+                }
+
+                var dividable = temp % (long)monkey.test == 0;
+                if (dividable)
+                {
+                    monkeys[monkey.ifTestTrue].items.Add(temp);
+                }
+                else
+                {
+                    monkeys[monkey.ifTestFalse].items.Add(temp);
                 }
             }
-            monkey.items.RemoveRange(0, starItemsCount);
+            monkey.items = monkey.items.Skip(startNum).ToList();
+            count++;
         }
     }
 
-    public static int GetWorry(int worry, char operation, int operand)
+    public static long GetWorry(long worry, char operation, long operand)
     {
-        int temp = 0;
+        long temp = 0;
         switch (operation)
         {
             case '+':
@@ -86,7 +116,7 @@ public static partial class Program
         var monkeyItems = monkeyLines[1].Substring("Starting items: ".Length + 2);
         var tempOperation = monkeyLines[2].Substring("Operation: new = old ".Length + 2);
         var operation = tempOperation[0];
-        var operationOperand = tempOperation.Substring(2) == "old" ? 0 : int.Parse(tempOperation.Substring(2));
+        long operationOperand = tempOperation.Substring(2) == "old" ? 0 : long.Parse(tempOperation.Substring(2));
         var test = monkeyLines[3].Substring("Test: divisible by ".Length + 2);
         var ifTrue = monkeyLines[4].Last();
         var ifFalse = monkeyLines[5].Last();
@@ -98,15 +128,15 @@ public static partial class Program
 
     public class Monkey
     {
-        public List<int> items;
+        public List<long> items;
         public char operation;
-        public int operationOperand;
+        public long operationOperand;
         public int test;
         public int ifTestTrue;
         public int ifTestFalse;
         public int inspectedCount;
 
-        public Monkey(string items, char operation, int operationOperand, int test, int ifTestTrue, int ifTestFalse)
+        public Monkey(string items, char operation, long operationOperand, int test, int ifTestTrue, int ifTestFalse)
         {
             this.items = ParseItems(items);
             this.operation = operation;
@@ -116,10 +146,10 @@ public static partial class Program
             this.ifTestFalse = ifTestFalse;
         }
 
-        private List<int> ParseItems(string items)
+        private List<long> ParseItems(string items)
         {
-            var temp = items.Split(',').Select(x => int.Parse(x));
-            return new List<int>(temp.ToList());
+            var temp = items.Split(',').Select(x => long.Parse(x));
+            return new List<long>(temp.ToList());
         }
     }
 }
